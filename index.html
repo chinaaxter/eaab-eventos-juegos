@@ -108,8 +108,11 @@
         </div>
         <div>
           <label>Atleta
-            <input type="text" name="Atleta" placeholder="Nombre del atleta" required>
+           <select name="AtletaCampeonatoID" id="atletaSelect" required>
+             <option value="">Elegir atleta...</option>
+           </select>
           </label>
+
         </div>
       </div>
 
@@ -145,19 +148,22 @@
         </div>
       </div>
 
-      <h2>Arsenal</h2>
       <label>Bola usada 1
-        <input type="text" name="BolaUsada1" placeholder="Ej. Phaze II 15lb">
-      </label>
-      <label>Bola usada 2
-        <input type="text" name="BolaUsada2">
-      </label>
-      <label>Bola usada 3
-        <input type="text" name="BolaUsada3">
-      </label>
-      <label>Notas del arsenal
-        <textarea name="NotasArsenal" placeholder="Cambios de bola, lectura de la pista, etc."></textarea>
-      </label>
+       <select name="BolaUsada1" id="bola1Select">
+        <option value="">Elegir bola...</option>
+       </select>
+     </label>
+     <label>Bola usada 2
+      <select name="BolaUsada2" id="bola2Select">
+       <option value="">(Opcional)</option>
+      </select>
+     </label>
+     <label>Bola usada 3
+      <select name="BolaUsada3" id="bola3Select">
+       <option value="">(Opcional)</option>
+      </select>
+     </label>
+
 
       <h2>Lane Play y resultado</h2>
       <label>Zona de juego
@@ -219,6 +225,92 @@
 
     const form = document.getElementById('eventoForm');
     const statusEl = document.getElementById('status');
+
+      // ⚙️ ID del campeonato (Juegos Bolivarianos 2025)
+  // Usa el mismo que aparece en la hoja AtletasCampeonato / columna CampeonatoID
+  const CAMPEONATO_ID = '6e419f05'; // <-- AJUSTA ESTE VALOR SI ES OTRO
+
+  const atletaSelect = document.getElementById('atletaSelect');
+  const bola1Select  = document.getElementById('bola1Select');
+  const bola2Select  = document.getElementById('bola2Select');
+  const bola3Select  = document.getElementById('bola3Select');
+
+  let atletasCache = [];
+  let bolasCache   = [];
+
+  async function cargarAtletas() {
+    try {
+      const url = `${API_URL}?action=atletas&campeonatoId=${encodeURIComponent(CAMPEONATO_ID)}`;
+      const resp = await fetch(url);
+      const json = await resp.json();
+
+      if (!json.success) {
+        console.error(json.error);
+        return;
+      }
+
+      atletasCache = json.atletas || [];
+      atletaSelect.innerHTML = '<option value="">Elegir atleta...</option>';
+
+      atletasCache.forEach(a => {
+        const opt = document.createElement('option');
+        opt.value = a.atletaCampeonatoId;   // ID de AtletasCampeonato
+        opt.textContent = a.nombre;
+        atletaSelect.appendChild(opt);
+      });
+    } catch (err) {
+      console.error('Error cargando atletas', err);
+    }
+  }
+
+  async function cargarBolas(atletaCampId) {
+    bola1Select.innerHTML = '<option value="">Elegir bola...</option>';
+    bola2Select.innerHTML = '<option value="">(Opcional)</option>';
+    bola3Select.innerHTML = '<option value="">(Opcional)</option>';
+
+    if (!atletaCampId) return;
+
+    try {
+      const url = `${API_URL}?action=bolas&atletaCampeonatoId=${encodeURIComponent(atletaCampId)}`;
+      const resp = await fetch(url);
+      const json = await resp.json();
+
+      if (!json.success) {
+        console.error(json.error);
+        return;
+      }
+
+      bolasCache = json.bolas || [];
+
+      bolasCache.forEach(b => {
+        const opt1 = document.createElement('option');
+        opt1.value = b.bolaId;
+        opt1.textContent = b.display;
+        bola1Select.appendChild(opt1);
+
+        const opt2 = document.createElement('option');
+        opt2.value = b.bolaId;
+        opt2.textContent = b.display;
+        bola2Select.appendChild(opt2);
+
+        const opt3 = document.createElement('option');
+        opt3.value = b.bolaId;
+        opt3.textContent = b.display;
+        bola3Select.appendChild(opt3);
+      });
+    } catch (err) {
+      console.error('Error cargando bolas', err);
+    }
+  }
+
+  // Cuando cambie el atleta, recargamos sus bolas
+  atletaSelect.addEventListener('change', (e) => {
+    const atletaCampId = e.target.value;
+    cargarBolas(atletaCampId);
+  });
+
+  // Cargar atletas al abrir la página
+  cargarAtletas();
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
