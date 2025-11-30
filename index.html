@@ -142,7 +142,7 @@
           </label>
         </div>
         <div>
-          <label>Número de atletas en la línea
+          <label>Número de atletas por pista
             <input type="number" name="NumeroAtletas" min="1" max="6">
           </label>
         </div>
@@ -166,9 +166,16 @@
 
 
       <h2>Lane Play y resultado</h2>
-      <label>Zona de juego
-        <input type="text" name="ZonaJuego" placeholder="Ej. 8–5, 12–8, 15–10">
-      </label>
+     <label>Zona de juego
+      <select name="ZonaJuego" required>
+       <option value="">Elegir zona...</option>
+       <option value="Zona 1 (1 - 7)">Zona 1 (1 - 7)</option>
+       <option value="Zona 2 (8 - 15)">Zona 2 (8 - 15)</option>
+       <option value="Zona 3 (16 - 25)">Zona 3 (16 - 25)</option>
+       <option value="Zona 4 (>25)">Zona 4 (&gt;25)</option>
+      </select>
+     </label>
+
       <div class="row">
         <div>
           <label>Break
