@@ -108,11 +108,10 @@
         </div>
         <div>
           <label>Atleta
-           <select name="Atleta" id="atletaSelect" required>
-             <option value="">Elegir atleta...</option>
-           </select>
+            <select name="Atleta" id="atletaSelect" required>
+              <option value="">Elegir atleta...</option>
+            </select>
           </label>
-
         </div>
       </div>
 
@@ -149,211 +148,23 @@
       </div>
 
       <label>Bola usada 1
-       <select name="BolaUsada1" id="bola1Select">
-        <option value="">Elegir bola...</option>
-       </select>
-     </label>
-     <label>Bola usada 2
-      <select name="BolaUsada2" id="bola2Select">
-       <option value="">(Opcional)</option>
-      </select>
-     </label>
-     <label>Bola usada 3
-      <select name="BolaUsada3" id="bola3Select">
-       <option value="">Si requiere más de 3 bolas no ha entendido el juego</option>
-      </select>
-     </label>
-
-
-      <h2>Lane Play y resultado</h2>
-     <label>Zona de juego
-      <select name="ZonaJuego" required>
-       <option value="">Elegir zona...</option>
-       <option value="Zona 1 (1 - 7)">Zona 1 (1 - 7)</option>
-       <option value="Zona 2 (8 - 15)">Zona 2 (8 - 15)</option>
-       <option value="Zona 3 (16 - 25)">Zona 3 (16 - 25)</option>
-       <option value="Zona 4 (>25)">Zona 4 (&gt;25)</option>
-      </select>
-     </label>
-
-      <div class="row">
-        <div>
-          <label>Break
-            <input type="text" name="Break" placeholder="Duela mas alejada del pocket ejm: 5, 8, 10 ...">
-          </label>
-        </div>
-        <div>
-          <label>Distancia Break
-            <input type="number" step="0.1" name="DistanciaBreak" placeholder="Ej. 40">
-          </label>
-        </div>
-      </div>
-
-      <div class="row">
-        <div>
-          <label>Diferencia entre pistas
-           <textarea name="DiferenciaEntrePistas" placeholder="Ej: Pista 16 remata 3 duelas más, pista derecha 3:1 a la izquierda"></textarea>
-          </label>
-
-        </div>
-        <div>
-          <label>Pinos Derribados en el Juego
-            <input type="number" name="Pinos" required>
-          </label>
-        </div>
-      </div>
-
-      <label>Transición
-        <select name="Transicion" required>
-          <option value="">Elegir...</option>
-          <option>Fresh</option>
-          <option>1a. Transición</option>
-          <option>2a. Transición</option>
-          <option>Burn</option>
-          <option>Double Burn</option>
+        <select name="BolaUsada1" id="bola1Select">
+          <option value="">Elegir bola...</option>
+        </select>
+      </label>
+      <label>Bola usada 2
+        <select name="BolaUsada2" id="bola2Select">
+          <option value="">(Opcional)</option>
+        </select>
+      </label>
+      <label>Bola usada 3
+        <select name="BolaUsada3" id="bola3Select">
+          <option value="">Si requiere más de 3 bolas no ha entendido el juego</option>
         </select>
       </label>
 
-      <label>Notas generales
-        <textarea name="NotasGeneral"></textarea>
-      </label>
-
-      <label>AcademyID (opcional)
-        <input type="text" name="AcademyID" placeholder="EAAB YUC, EAAB DOM...">
-      </label>
-
-      <button type="submit">Enviar juego</button>
-      <p id="status"></p>
-    </form>
-  </div>
-
-  <script>
-    // URL de tu Web App de Apps Script:
-    const API_URL = 'https://script.google.com/macros/s/AKfycbyv-zP0fp0p8xwsXoPQjLjpfJ3otAtWqum6Da4FGPXWROeHdGQBKgm1sgq016_4G7GDAA/exec';
-
-    const form = document.getElementById('eventoForm');
-    const statusEl = document.getElementById('status');
-
-      // ⚙️ ID del campeonato (Juegos Bolivarianos 2025)
-  // Usa el mismo que aparece en la hoja AtletasCampeonato / columna CampeonatoID
-  const CAMPEONATO_ID = '6e419f05'; // <-- AJUSTA ESTE VALOR SI ES OTRO
-
-  const atletaSelect = document.getElementById('atletaSelect');
-  const bola1Select  = document.getElementById('bola1Select');
-  const bola2Select  = document.getElementById('bola2Select');
-  const bola3Select  = document.getElementById('bola3Select');
-
-  let atletasCache = [];
-  let bolasCache   = [];
-
-  async function cargarAtletas() {
-    try {
-      const url = `${API_URL}?action=atletas&campeonatoId=${encodeURIComponent(CAMPEONATO_ID)}`;
-      const resp = await fetch(url);
-      const json = await resp.json();
-
-      if (!json.success) {
-        console.error(json.error);
-        return;
-      }
-
-      atletasCache = json.atletas || [];
-      atletaSelect.innerHTML = '<option value="">Elegir atleta...</option>';
-
-      atletasCache.forEach(a => {
-        const opt = document.createElement('option');
-        opt.value = a.atletaCampeonatoId;   // ID de AtletasCampeonato
-        opt.textContent = a.nombre;
-        atletaSelect.appendChild(opt);
-      });
-    } catch (err) {
-      console.error('Error cargando atletas', err);
-    }
-  }
-
-  async function cargarBolas(atletaCampId) {
-    bola1Select.innerHTML = '<option value="">Elegir bola...</option>';
-    bola2Select.innerHTML = '<option value="">(Opcional)</option>';
-    bola3Select.innerHTML = '<option value="">(Opcional)</option>';
-
-    if (!atletaCampId) return;
-
-    try {
-      const url = `${API_URL}?action=bolas&atletaCampeonatoId=${encodeURIComponent(atletaCampId)}`;
-      const resp = await fetch(url);
-      const json = await resp.json();
-
-      if (!json.success) {
-        console.error(json.error);
-        return;
-      }
-
-      bolasCache = json.bolas || [];
-
-      bolasCache.forEach(b => {
-        const opt1 = document.createElement('option');
-        opt1.value = b.bolaId;
-        opt1.textContent = b.display;
-        bola1Select.appendChild(opt1);
-
-        const opt2 = document.createElement('option');
-        opt2.value = b.bolaId;
-        opt2.textContent = b.display;
-        bola2Select.appendChild(opt2);
-
-        const opt3 = document.createElement('option');
-        opt3.value = b.bolaId;
-        opt3.textContent = b.display;
-        bola3Select.appendChild(opt3);
-      });
-    } catch (err) {
-      console.error('Error cargando bolas', err);
-    }
-  }
-
-  // Cuando cambie el atleta, recargamos sus bolas
-  atletaSelect.addEventListener('change', (e) => {
-    const atletaCampId = e.target.value;
-    cargarBolas(atletaCampId);
-  });
-
-  // Cargar atletas al abrir la página
-  cargarAtletas();
-
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      statusEl.textContent = 'Enviando...';
-      statusEl.className = '';
-      const btn = form.querySelector('button[type="submit"]');
-      btn.disabled = true;
-
-      const formData = new FormData(form);
-      const data = Object.fromEntries(formData.entries());
-
-      const resp = await fetch(API_URL, {
-  method: 'POST',
-  body: JSON.stringify(data)   // sin headers personalizados
-});
-
-const json = await resp.json();
-
-
-        const json = await resp.json();
-        if (json && json.success) {
-          statusEl.textContent = '✅ Juego registrado correctamente.';
-          statusEl.className = 'ok';
-          form.reset();
-        } else {
-          statusEl.textContent = '⚠️ Error al guardar: ' + (json.error || 'Respuesta inválida.');
-          statusEl.className = 'err';
-        }
-      } catch (err) {
-        statusEl.textContent = '❌ Error de conexión: ' + err.message;
-        statusEl.className = 'err';
-      } finally {
-        btn.disabled = false;
-      }
-    });
-  </script>
-</body>
-</html>
+      <h2>Lane Play y resultado</h2>
+      <label>Zona de juego
+        <select name="ZonaJuego" required>
+          <option value="">Elegir zona...</option>
+          <option value="Zona 1 (1 - 7)">Zona 1 (1 - 7)</option>
