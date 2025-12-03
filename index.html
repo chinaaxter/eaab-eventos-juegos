@@ -108,7 +108,7 @@
         </div>
         <div>
           <label>Atleta
-           <select name="AtletaCampeonatoID" id="atletaSelect" required>
+           <select name="Atleta" id="atletaSelect" required>
              <option value="">Elegir atleta...</option>
            </select>
           </label>
@@ -198,7 +198,7 @@
         </div>
         <div>
           <label>Pinos Derribados en el Juego
-            <input type="number" name="Total de Pinos" required>
+            <input type="number" name="Pinos" required>
           </label>
         </div>
       </div>
@@ -330,12 +330,13 @@
       const formData = new FormData(form);
       const data = Object.fromEntries(formData.entries());
 
-      try {
-        const resp = await fetch(API_URL, {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify(data)
-        });
+      const resp = await fetch(API_URL, {
+  method: 'POST',
+  body: JSON.stringify(data)   // sin headers personalizados
+});
+
+const json = await resp.json();
+
 
         const json = await resp.json();
         if (json && json.success) {
